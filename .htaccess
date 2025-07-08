@@ -1,0 +1,9 @@
+#Activa el motor de reescritura de URLs del servidor.
+RewriteEngine On 
+
+#Evita que se vea el contenido de las carpetas si no hay un archivo index.php o index.html
+Options All -Indexes 
+
+# Sobreescribiendo para usar url amigables
+# Redirigir todas las rutas escritas en la URL hacia el archivo index.php
+RewriteRule ^([a-zA-Z0-9/ñÑ-]+)$ index.php?views=$1
