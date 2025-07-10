@@ -1,0 +1,12 @@
+body, html {
+    height: 100%;
+    width: 100%;
+}
+
+.logo-container img {
+    height: 60px !important;
+    width: auto !important;
+    max-height: none !important;
+    display: inline-block;
+    object-fit: contain;
+}
