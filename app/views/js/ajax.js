@@ -89,7 +89,6 @@ function alertas_ajax(alerta){
 }
 
 
-
 /* Boton cerrar sesion */
 let btn_exit=document.getElementById("btn_exit");
 
