@@ -7,11 +7,11 @@ use app\models\mainModel;
 class userController extends mainModel
 {
 
-	/* Controlador registrar usuario */
+	/*----------  Controlador registrar usuario  ----------*/
 	public function registrarUsuarioControlador()
 	{
 
-		// Almacenando datos#
+		# Almacenando datos#
 		$nombre = $this->limpiarCadena($_POST['usuario_nombre']);
 		$apellido = $this->limpiarCadena($_POST['usuario_apellido']);
 
@@ -21,7 +21,7 @@ class userController extends mainModel
 		$clave2 = $this->limpiarCadena($_POST['usuario_clave_2']);
 
 
-		//  Verificando campos obligatorios #
+		# Verificando campos obligatorios #
 		if ($nombre == "" || $apellido == "" || $usuario == "" || $clave1 == "" || $clave2 == "") {
 			$alerta = [
 				"tipo" => "simple",
@@ -30,9 +30,10 @@ class userController extends mainModel
 				"icono" => "error"
 			];
 			return json_encode($alerta);
+			
 		}
 
-		// Verificando integridad de los datos #
+		# Verificando integridad de los datos #
 		if ($this->verificarDatos("[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{3,40}", $nombre)) {
 			$alerta = [
 				"tipo" => "simple",
@@ -41,6 +42,7 @@ class userController extends mainModel
 				"icono" => "error"
 			];
 			return json_encode($alerta);
+			
 		}
 
 		if ($this->verificarDatos("[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{3,40}", $apellido)) {
@@ -51,6 +53,7 @@ class userController extends mainModel
 				"icono" => "error"
 			];
 			return json_encode($alerta);
+			
 		}
 
 		if ($this->verificarDatos("[a-zA-Z0-9]{4,20}", $usuario)) {
@@ -61,6 +64,7 @@ class userController extends mainModel
 				"icono" => "error"
 			];
 			return json_encode($alerta);
+			
 		}
 
 		if ($this->verificarDatos("[a-zA-Z0-9$@.-]{7,100}", $clave1) || $this->verificarDatos("[a-zA-Z0-9$@.-]{7,100}", $clave2)) {
@@ -71,9 +75,10 @@ class userController extends mainModel
 				"icono" => "error"
 			];
 			return json_encode($alerta);
+			
 		}
 
-		// Verificando email
+		# Verificando email #
 		if ($email != "") {
 			if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
 				$check_email = $this->ejecutarConsulta("SELECT usuario_email FROM usuario WHERE usuario_email='$email'");
@@ -85,6 +90,7 @@ class userController extends mainModel
 						"icono" => "error"
 					];
 					return json_encode($alerta);
+					
 				}
 			} else {
 				$alerta = [
@@ -94,10 +100,11 @@ class userController extends mainModel
 					"icono" => "error"
 				];
 				return json_encode($alerta);
+				
 			}
 		}
 
-		// Verificando si las claves coinciden
+		# Verificando claves #
 		if ($clave1 != $clave2) {
 			$alerta = [
 				"tipo" => "simple",
@@ -106,13 +113,12 @@ class userController extends mainModel
 				"icono" => "error"
 			];
 			return json_encode($alerta);
+			
 		} else {
-			# Encriptando la clave
 			$clave = password_hash($clave1, PASSWORD_BCRYPT, ["cost" => 10]);
 		}
 
-		// verificando si el usuario ya existe
-
+		# Verificando usuario #
 		$check_usuario = $this->ejecutarConsulta("SELECT usuario_usuario FROM usuario WHERE usuario_usuario='$usuario'");
 		if ($check_usuario->rowCount() > 0) {
 			$alerta = [
@@ -122,9 +128,10 @@ class userController extends mainModel
 				"icono" => "error"
 			];
 			return json_encode($alerta);
+			
 		}
 
-		// Directorio de imagenes
+		# Directorio de imagenes #
 		$img_dir = "../views/photos/";
 
 		# Comprobar si se selecciono una imagen #
@@ -140,6 +147,7 @@ class userController extends mainModel
 						"icono" => "error"
 					];
 					return json_encode($alerta);
+					
 				}
 			}
 
@@ -152,6 +160,7 @@ class userController extends mainModel
 					"icono" => "error"
 				];
 				return json_encode($alerta);
+				
 			}
 
 			# Verificando peso de imagen #
@@ -163,6 +172,7 @@ class userController extends mainModel
 					"icono" => "error"
 				];
 				return json_encode($alerta);
+				
 			}
 
 			# Nombre de la foto #
@@ -190,13 +200,13 @@ class userController extends mainModel
 					"icono" => "error"
 				];
 				return json_encode($alerta);
+				
 			}
 		} else {
-			# Si no se selecciona una imagen  se inicializa en vacio #
 			$foto = "";
 		}
 
-		// Preparando datos para enviar a la BD
+
 		$usuario_datos_reg = [
 			[
 				"campo_nombre" => "usuario_nombre",
@@ -267,7 +277,9 @@ class userController extends mainModel
 		return json_encode($alerta);
 	}
 
-	/* Controlador listar usuario */
+
+
+	/*----------  Controlador listar usuario  ----------*/
 	public function listarUsuarioControlador($pagina, $registros, $url, $busqueda)
 	{
 
@@ -294,7 +306,7 @@ class userController extends mainModel
 
 			$consulta_total = "SELECT COUNT(usuario_id) FROM usuario WHERE usuario_id!='" . $_SESSION['id'] . "' AND usuario_id!='1'";
 		}
-		// ejecutando consulta
+
 		$datos = $this->ejecutarConsulta($consulta_datos);
 		$datos = $datos->fetchAll();
 
@@ -303,9 +315,8 @@ class userController extends mainModel
 
 		$numeroPaginas = ceil($total / $registros);
 
-		// creando tabla de usuarios
 		$tabla .= '
-			<div class="table-container">
+					<div class="table-container">
 					<table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
 						<thead>
 							<tr>
@@ -327,54 +338,57 @@ class userController extends mainModel
 			foreach ($datos as $rows) {
 				$tabla .= '
 						<tr class="has-text-centered" >
-								<td>' . $contador . '</td>
-								<td>' . $rows['usuario_nombre'] . ' ' . $rows['usuario_apellido'] . '</td>
-								<td>' . $rows['usuario_usuario'] . '</td>
-								<td>' . $rows['usuario_email'] . '</td>
-								<td>' . date("d-m-Y  h:i:s A", strtotime($rows['usuario_creado'])) . '</td>
-								<td>' . date("d-m-Y  h:i:s A", strtotime($rows['usuario_actualizado'])) . '</td>
-								<td>
-									<a href="' . APP_URL . 'userPhoto/' . $rows['usuario_id'] . '/" class="button is-info is-rounded is-small">Foto</a>
-								</td>
-								<td>
-									<a href="' . APP_URL . 'userUpdate/' . $rows['usuario_id'] . '/" class="button is-success is-rounded is-small">Actualizar</a>
-								</td>
-								<td>
+							<td>' . $contador . '</td>
+							<td>' . $rows['usuario_nombre'] . ' ' . $rows['usuario_apellido'] . '</td>
+							<td>' . $rows['usuario_usuario'] . '</td>
+							<td>' . $rows['usuario_email'] . '</td>
+							<td>' . date("d-m-Y  h:i:s A", strtotime($rows['usuario_creado'])) . '</td>
+							<td>' . date("d-m-Y  h:i:s A", strtotime($rows['usuario_actualizado'])) . '</td>
+							<td>
+								<a href="' . APP_URL . 'userPhoto/' . $rows['usuario_id'] . '/" class="button is-info is-rounded is-small">Foto</a>
+							</td>
+							<td>
+								<a href="' . APP_URL . 'userUpdate/' . $rows['usuario_id'] . '/" class="button is-success is-rounded is-small">Actualizar</a>
+							</td>
+							<td>
+								<form class="FormularioAjax" action="' . APP_URL . 'app/ajax/usuarioAjax.php" method="POST" autocomplete="off" >
 
-									<form class="FormularioAjax" action="' . APP_URL . 'app/ajax/usuarioAjax.php" method="POST" autocomplete="off" >
+									<input type="hidden" name="modulo_usuario" value="eliminar">
+									<input type="hidden" name="usuario_id" value="' . $rows['usuario_id'] . '">
 
-										<input type="hidden" name="modulo_usuario" value="eliminar">
-										<input type="hidden" name="usuario_id" value="' . $rows['usuario_id'] . '">
-
-										<button type="submit" class="button is-danger is-rounded is-small">Eliminar</button>
-									</form>
-								</td>
+									<button type="submit" class="button is-danger is-rounded is-small">Eliminar</button>
+								</form>
+							</td>
 						</tr>
 					';
 				$contador++;
 			}
 			$pag_final = $contador - 1;
-			$tabla .= '
-							<tr class="has-text-centered" >
-								<td colspan="7">
-									<a href="' . $url . '1/" class="button is-link is-rounded is-small mt-4 mb-4">
-										Haga clic acá para recargar el listado
-									</a>
-								</td>
-							</tr>
-					';
 		} else {
-			$tabla .= '
-							<tr class="has-text-centered" >
-								<td colspan="7">
-									No hay registros en el sistema
-								</td>
-							</tr>
+			if ($total >= 1) {
+				$tabla .= '
+						<tr class="has-text-centered" >
+							<td colspan="7">
+								<a href="' . $url . '1/" class="button is-link is-rounded is-small mt-4 mb-4">
+									Haga clic acá para recargar el listado
+								</a>
+							</td>
+						</tr>
 					';
+			} else {
+				$tabla .= '
+						<tr class="has-text-centered" >
+							<td colspan="7">
+								No hay registros en el sistema
+							</td>
+						</tr>
+					';
+			}
 		}
+
 		$tabla .= '</tbody></table></div>';
 
-		# Paginacion #
+		### Paginacion ###
 		if ($total > 0 && $pagina <= $numeroPaginas) {
 			$tabla .= '<p class="has-text-right">Mostrando usuarios <strong>' . $pag_inicio . '</strong> al <strong>' . $pag_final . '</strong> de un <strong>total de ' . $total . '</strong></p>';
 
@@ -384,7 +398,8 @@ class userController extends mainModel
 		return $tabla;
 	}
 
-	/* Controlador eliminar usuario */
+
+	/*----------  Controlador eliminar usuario  ----------*/
 	public function eliminarUsuarioControlador()
 	{
 
@@ -398,6 +413,7 @@ class userController extends mainModel
 				"icono" => "error"
 			];
 			return json_encode($alerta);
+			
 		}
 
 		# Verificando usuario #
@@ -406,10 +422,11 @@ class userController extends mainModel
 			$alerta = [
 				"tipo" => "simple",
 				"titulo" => "Ocurrió un error inesperado",
-				"texto" => "Usuario no encontrado en el sistema",
+				"texto" => "No hemos encontrado el usuario en el sistema",
 				"icono" => "error"
 			];
 			return json_encode($alerta);
+			
 		} else {
 			$datos = $datos->fetch();
 		}
@@ -442,7 +459,8 @@ class userController extends mainModel
 		return json_encode($alerta);
 	}
 
-	/* Controlador actualizar usuario */
+
+	/*----------  Controlador actualizar usuario  ----------*/
 	public function actualizarUsuarioControlador()
 	{
 
@@ -652,6 +670,7 @@ class userController extends mainModel
 					"icono" => "error"
 				];
 				return json_encode($alerta);
+				
 			}
 		}
 
@@ -714,6 +733,260 @@ class userController extends mainModel
 				"titulo" => "Ocurrió un error inesperado",
 				"texto" => "No hemos podido actualizar los datos del usuario " . $datos['usuario_nombre'] . " " . $datos['usuario_apellido'] . ", por favor intente nuevamente",
 				"icono" => "error"
+			];
+		}
+
+		return json_encode($alerta);
+	}
+
+
+	/*----------  Controlador eliminar foto usuario  ----------*/
+	public function eliminarFotoUsuarioControlador()
+	{
+
+		$id = $this->limpiarCadena($_POST['usuario_id']);
+
+		# Verificando usuario #
+		$datos = $this->ejecutarConsulta("SELECT * FROM usuario WHERE usuario_id='$id'");
+		if ($datos->rowCount() <= 0) {
+			$alerta = [
+				"tipo" => "simple",
+				"titulo" => "Ocurrió un error inesperado",
+				"texto" => "No hemos encontrado el usuario en el sistema",
+				"icono" => "error"
+			];
+			return json_encode($alerta);
+			
+		} else {
+			$datos = $datos->fetch();
+		}
+
+		# Directorio de imagenes #
+		$img_dir = "../views/photos/";
+
+		chmod($img_dir, 0777);
+
+		if (is_file($img_dir . $datos['usuario_foto'])) {
+
+			chmod($img_dir . $datos['usuario_foto'], 0777);
+
+			if (!unlink($img_dir . $datos['usuario_foto'])) {
+				$alerta = [
+					"tipo" => "simple",
+					"titulo" => "Ocurrió un error inesperado",
+					"texto" => "Error al intentar eliminar la foto del usuario, por favor intente nuevamente",
+					"icono" => "error"
+				];
+				return json_encode($alerta);
+				
+			}
+		} else {
+			$alerta = [
+				"tipo" => "simple",
+				"titulo" => "Ocurrió un error inesperado",
+				"texto" => "No hemos encontrado la foto del usuario en el sistema",
+				"icono" => "error"
+			];
+			return json_encode($alerta);
+			
+		}
+
+		$usuario_datos_up = [
+			[
+				"campo_nombre" => "usuario_foto",
+				"campo_marcador" => ":Foto",
+				"campo_valor" => ""
+			],
+			[
+				"campo_nombre" => "usuario_actualizado",
+				"campo_marcador" => ":Actualizado",
+				"campo_valor" => date("Y-m-d H:i:s")
+			]
+		];
+
+		$condicion = [
+			"condicion_campo" => "usuario_id",
+			"condicion_marcador" => ":ID",
+			"condicion_valor" => $id
+		];
+
+		if ($this->actualizarDatos("usuario", $usuario_datos_up, $condicion)) {
+
+			if ($id == $_SESSION['id']) {
+				$_SESSION['foto'] = "";
+			}
+
+			$alerta = [
+				"tipo" => "recargar",
+				"titulo" => "Foto eliminada",
+				"texto" => "La foto del usuario " . $datos['usuario_nombre'] . " " . $datos['usuario_apellido'] . " se elimino correctamente",
+				"icono" => "success"
+			];
+		} else {
+			$alerta = [
+				"tipo" => "recargar",
+				"titulo" => "Foto eliminada",
+				"texto" => "No hemos podido actualizar algunos datos del usuario " . $datos['usuario_nombre'] . " " . $datos['usuario_apellido'] . ", sin embargo la foto ha sido eliminada correctamente",
+				"icono" => "warning"
+			];
+		}
+
+		return json_encode($alerta);
+	}
+
+
+	/*----------  Controlador actualizar foto usuario  ----------*/
+	public function actualizarFotoUsuarioControlador()
+	{
+
+		$id = $this->limpiarCadena($_POST['usuario_id']);
+
+		# Verificando usuario #
+		$datos = $this->ejecutarConsulta("SELECT * FROM usuario WHERE usuario_id='$id'");
+		if ($datos->rowCount() <= 0) {
+			$alerta = [
+				"tipo" => "simple",
+				"titulo" => "Ocurrió un error inesperado",
+				"texto" => "No hemos encontrado el usuario en el sistema",
+				"icono" => "error"
+			];
+			return json_encode($alerta);
+			
+		} else {
+			$datos = $datos->fetch();
+		}
+
+		# Directorio de imagenes #
+		$img_dir = "../views/photos/";
+
+		# Comprobar si se selecciono una imagen #
+		if ($_FILES['usuario_foto']['name'] == "" && $_FILES['usuario_foto']['size'] <= 0) {
+			$alerta = [
+				"tipo" => "simple",
+				"titulo" => "Ocurrió un error inesperado",
+				"texto" => "No ha seleccionado una foto para el usuario",
+				"icono" => "error"
+			];
+			return json_encode($alerta);
+			
+		}
+
+		# Creando directorio #
+		if (!file_exists($img_dir)) {
+			if (!mkdir($img_dir, 0777)) {
+				$alerta = [
+					"tipo" => "simple",
+					"titulo" => "Ocurrió un error inesperado",
+					"texto" => "Error al crear el directorio",
+					"icono" => "error"
+				];
+				return json_encode($alerta);
+				
+			}
+		}
+
+		# Verificando formato de imagenes #
+		if (mime_content_type($_FILES['usuario_foto']['tmp_name']) != "image/jpeg" && mime_content_type($_FILES['usuario_foto']['tmp_name']) != "image/png") {
+			$alerta = [
+				"tipo" => "simple",
+				"titulo" => "Ocurrió un error inesperado",
+				"texto" => "La imagen que ha seleccionado es de un formato no permitido",
+				"icono" => "error"
+			];
+			return json_encode($alerta);
+			
+		}
+
+		# Verificando peso de imagen #
+		if (($_FILES['usuario_foto']['size'] / 1024) > 5120) {
+			$alerta = [
+				"tipo" => "simple",
+				"titulo" => "Ocurrió un error inesperado",
+				"texto" => "La imagen que ha seleccionado supera el peso permitido",
+				"icono" => "error"
+			];
+			return json_encode($alerta);
+			
+		}
+
+		# Nombre de la foto #
+		if ($datos['usuario_foto'] != "") {
+			$foto = explode(".", $datos['usuario_foto']);
+			$foto = $foto[0];
+		} else {
+			$foto = str_ireplace(" ", "_", $datos['usuario_nombre']);
+			$foto = $foto . "_" . rand(0, 100);
+		}
+
+
+		# Extension de la imagen #
+		switch (mime_content_type($_FILES['usuario_foto']['tmp_name'])) {
+			case 'image/jpeg':
+				$foto = $foto . ".jpg";
+				break;
+			case 'image/png':
+				$foto = $foto . ".png";
+				break;
+		}
+
+		chmod($img_dir, 0777);
+
+		# Moviendo imagen al directorio #
+		if (!move_uploaded_file($_FILES['usuario_foto']['tmp_name'], $img_dir . $foto)) {
+			$alerta = [
+				"tipo" => "simple",
+				"titulo" => "Ocurrió un error inesperado",
+				"texto" => "No podemos subir la imagen al sistema en este momento",
+				"icono" => "error"
+			];
+			return json_encode($alerta);
+			
+		}
+
+		# Eliminando imagen anterior #
+		if (is_file($img_dir . $datos['usuario_foto']) && $datos['usuario_foto'] != $foto) {
+			chmod($img_dir . $datos['usuario_foto'], 0777);
+			unlink($img_dir . $datos['usuario_foto']);
+		}
+
+		$usuario_datos_up = [
+			[
+				"campo_nombre" => "usuario_foto",
+				"campo_marcador" => ":Foto",
+				"campo_valor" => $foto
+			],
+			[
+				"campo_nombre" => "usuario_actualizado",
+				"campo_marcador" => ":Actualizado",
+				"campo_valor" => date("Y-m-d H:i:s")
+			]
+		];
+
+		$condicion = [
+			"condicion_campo" => "usuario_id",
+			"condicion_marcador" => ":ID",
+			"condicion_valor" => $id
+		];
+
+		if ($this->actualizarDatos("usuario", $usuario_datos_up, $condicion)) {
+
+			if ($id == $_SESSION['id']) {
+				$_SESSION['foto'] = $foto;
+			}
+
+			$alerta = [
+				"tipo" => "recargar",
+				"titulo" => "Foto actualizada",
+				"texto" => "La foto del usuario " . $datos['usuario_nombre'] . " " . $datos['usuario_apellido'] . " se actualizo correctamente",
+				"icono" => "success"
+			];
+		} else {
+
+			$alerta = [
+				"tipo" => "recargar",
+				"titulo" => "Foto actualizada",
+				"texto" => "No hemos podido actualizar algunos datos del usuario " . $datos['usuario_nombre'] . " " . $datos['usuario_apellido'] . " , sin embargo la foto ha sido actualizada",
+				"icono" => "warning"
 			];
 		}
 
